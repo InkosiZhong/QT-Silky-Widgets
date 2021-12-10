@@ -1,19 +1,19 @@
-#include "scrollview.h"
+#include "bidirectscrollview.h"
 
-ScrollView::ScrollView(QWidget *parent){
+BidirectScrollView::BidirectScrollView(QWidget *parent){
     m_animationGroup = new QParallelAnimationGroup(this);
     initAnimation();
     setFixedSize(size());
     setupAnimation();
     setupAppearance();
+    grabKeyboard();
 }
 
-ScrollView::~ScrollView() {}
+BidirectScrollView::~BidirectScrollView() {}
 
-void ScrollView::setupAnimation(float zoomRate, int duration, ScrollType type){
+void BidirectScrollView::setupAnimation(float zoomRate, int duration){
     m_zoomRate = fmax(fmin(zoomRate, 1), 0);
     duration = fmax(duration, 0);
-    m_scrollType = type;
     for (int i = 0; i < 2; i++) {
         QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(i));
         QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
@@ -23,7 +23,7 @@ void ScrollView::setupAnimation(float zoomRate, int duration, ScrollType type){
     }
 }
 
-void ScrollView::setupAppearance(int borderWidth, int radius, QString borderColor, QString backgroundColor){
+void BidirectScrollView::setupAppearance(int borderWidth, int radius, QString borderColor, QString backgroundColor){
     borderWidth = fmax(fmin(borderWidth, 3), 0);
     radius = fmax(radius, 0);
     QString styleSheet = ".QWidget {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
@@ -33,25 +33,14 @@ void ScrollView::setupAppearance(int borderWidth, int radius, QString borderColo
     setStyleSheet(styleSheet);
 }
 
-bool ScrollView::append(QWidget* widget){
-    if (widget != nullptr){
-        widget->setFixedSize(size() - QSize(6, 6));
-        if (widget->size() + QSize(6, 6) == size()){
-            widget->setMinimumSize(QSize(0, 0));
-            m_widgetList << widget;
-            show();
-            return true;
-        }
-    }
-    return false;
-}
-
-bool ScrollView::append(QList<QWidget*>* widget_list){
+bool BidirectScrollView::append(QList<QList<QWidget *>>* widget_list){
     if (widget_list != nullptr){
-        for (auto w : *widget_list){
-            w->setFixedSize(size() - QSize(6, 6));
-            if (w->size() + QSize(6, 6) != size())return false;
-            w->setMinimumSize(QSize(0, 0));
+        for (auto wl : *widget_list){
+            for (auto w : wl){
+                w->setFixedSize(size() - QSize(6, 6));
+                if (w->size() + QSize(6, 6) != size())return false;
+                w->setMinimumSize(QSize(0, 0));
+            }
         }
         m_widgetList << *widget_list;
         show();
@@ -60,7 +49,7 @@ bool ScrollView::append(QList<QWidget*>* widget_list){
     return false;
 }
 
-void ScrollView::wheelEvent(QWheelEvent *event)
+void BidirectScrollView::wheelEvent(QWheelEvent *event)
 {
     if (m_animationGroup->state() == QAnimationGroup::Running) {
         return;
@@ -73,7 +62,18 @@ void ScrollView::wheelEvent(QWheelEvent *event)
     }
 }
 
-QPoint ScrollView::getPos(ScrollView::PosType type)
+void BidirectScrollView::keyPressEvent(QKeyEvent *event){
+    if (event->key() == Qt::Key_Shift){
+        m_scrollType = SCROLL_HORIZONTAL;
+    }
+}
+void BidirectScrollView::keyReleaseEvent(QKeyEvent *event){
+    if (event->key() == Qt::Key_Shift){
+        m_scrollType = SCROLL_VERTICAL;
+    }
+}
+
+QPoint BidirectScrollView::getPos(BidirectScrollView::PosType type)
 {
     if (m_scrollType == SCROLL_VERTICAL){
         return QPoint(3, 3 + height() * type);
@@ -82,21 +82,27 @@ QPoint ScrollView::getPos(ScrollView::PosType type)
     }
 }
 
-QWidget *ScrollView::getWidget(ScrollView::PosType type)
+#include <QDebug>
+QWidget *BidirectScrollView::getWidget(BidirectScrollView::PosType type)
 {
-    int index = (m_currentIndex + m_widgetList.count() + type) % m_widgetList.count();
-    return m_widgetList.at(index);
-
+    if (m_scrollType == SCROLL_VERTICAL){
+        int verticalIndex = (m_verticalIndex + m_widgetList.count() + type) % m_widgetList.count();
+        int horizentalIndex = fmin(m_horizontalIndex, m_widgetList.at(verticalIndex).count() - 1);
+        return m_widgetList.at(verticalIndex).at(horizentalIndex);
+    } else {
+        int horizentalIndex = (m_horizontalIndex + m_widgetList.at(m_verticalIndex).count() + type) % m_widgetList.at(m_verticalIndex).count();
+        return m_widgetList.at(m_verticalIndex).at(horizentalIndex);
+    }
 }
 
-void ScrollView::show()
+void BidirectScrollView::show()
 {
     auto w = getWidget(static_cast<PosType>(POS_SHOW));
     w->move(getPos(static_cast<PosType>(POS_SHOW)));
     w->setVisible(true);
 }
 
-void ScrollView::initAnimation()
+void BidirectScrollView::initAnimation()
 {
     for (int i = 0; i < 2; i++) {
         QSequentialAnimationGroup* resizeGroup = new QSequentialAnimationGroup(this);
@@ -114,9 +120,12 @@ void ScrollView::initAnimation()
     }
 }
 
-void ScrollView::scrollPre()
+void BidirectScrollView::scrollPre()
 {
-    if (m_widgetList.count() < 2)return;
+    if ((m_scrollType == SCROLL_VERTICAL && m_widgetList.count() < 2) ||
+        (m_scrollType == SCROLL_HORIZONTAL && m_widgetList.at(m_verticalIndex).count() < 2)){
+        return;
+    }
     for (int i = 0; i < 2; i++) {
         auto w = getWidget(static_cast<PosType>(POS_SHOW - i));
         w->setVisible(true);
@@ -142,12 +151,20 @@ void ScrollView::scrollPre()
     }
 
     m_animationGroup->start();
-    m_currentIndex = (m_currentIndex + m_widgetList.count() - 1) % m_widgetList.count();
+    if (m_scrollType == SCROLL_VERTICAL){
+        m_verticalIndex = (m_verticalIndex + m_widgetList.count() - 1) % m_widgetList.count();
+        m_horizontalIndex = fmin(m_horizontalIndex, m_widgetList.at(m_verticalIndex).count() - 1);
+    } else {
+        m_horizontalIndex = (m_horizontalIndex + m_widgetList.at(m_verticalIndex).count() - 1) % m_widgetList.at(m_verticalIndex).count();
+    }
 }
 
-void ScrollView::scrollNext()
+void BidirectScrollView::scrollNext()
 {
-    if (m_widgetList.count() < 2)return;
+    if ((m_scrollType == SCROLL_VERTICAL && m_widgetList.count() < 2) ||
+        (m_scrollType == SCROLL_HORIZONTAL && m_widgetList.at(m_verticalIndex).count() < 2)){
+        return;
+    }
     for (int i = 0; i < 2; i++) {
         auto w = getWidget(static_cast<PosType>(POS_SHOW + i));
         w->setVisible(true);
@@ -173,5 +190,10 @@ void ScrollView::scrollNext()
     }
 
     m_animationGroup->start();
-    m_currentIndex = (m_currentIndex + 1) % m_widgetList.count();
+    if (m_scrollType == SCROLL_VERTICAL){
+        m_verticalIndex = (m_verticalIndex + 1) % m_widgetList.count();
+        m_horizontalIndex = fmin(m_horizontalIndex, m_widgetList.at(m_verticalIndex).count() - 1);
+    } else {
+        m_horizontalIndex = (m_horizontalIndex + 1) % m_widgetList.at(m_verticalIndex).count();
+    }
 }

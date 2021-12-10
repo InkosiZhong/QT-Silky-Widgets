@@ -5,7 +5,9 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QSequentialAnimationGroup>
-#include <QDebug>
+#include <QPushButton>
+#include <QWheelEvent>
+#include <cmath>
 
 class ScrollView : public QWidget
 {
@@ -14,7 +16,8 @@ public:
     ~ScrollView();
 
 public:
-    void setupAnimation(float zoomRate = 0.8, int duration = 300);
+    enum ScrollType { SCROLL_HORIZONTAL, SCROLL_VERTICAL };
+    void setupAnimation(float zoomRate = 0.8, int duration = 300, ScrollType type = SCROLL_VERTICAL);
     void setupAppearance(int borderWidth = 3, int radius = 15, QString borderColor = "#999999", QString backgroundColor = "#AAAAAA");
     bool append(QWidget*);
     bool append(QList<QWidget*>*);
@@ -38,9 +41,10 @@ protected:
 
 private:
     QList<QWidget *> m_widgetList;
-    QAnimationGroup *m_animationGroup;
     int m_currentIndex = 0;
+    QAnimationGroup *m_animationGroup;
     float m_zoomRate = 0.8;
+    ScrollType m_scrollType = SCROLL_VERTICAL;
 };
 
 #endif // SCROLLVIEW_H
