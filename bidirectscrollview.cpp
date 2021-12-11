@@ -33,6 +33,75 @@ void BidirectScrollView::setupAppearance(int borderWidth, int radius, QString bo
     setStyleSheet(styleSheet);
 }
 
+bool BidirectScrollView::get(int v_idx, int h_idx, QWidget *widget){
+    if (0 <= v_idx && v_idx < m_widgetList.count() && 0 <= h_idx && h_idx < m_widgetList.at(v_idx).count()){
+        widget = m_widgetList.at(v_idx).at(h_idx);
+        return true;
+    }
+    return false;
+}
+
+bool BidirectScrollView::append(int idx, QWidget *widget){
+    if (0 <= idx && widget != nullptr){
+        if (idx > m_widgetList.count())return false;
+        widget->setFixedSize(size() - QSize(6, 6));
+        if (widget->size() + QSize(6, 6) != size())return false;
+        widget->setMinimumSize(QSize(0, 0));
+        if (idx == m_widgetList.count()){
+            QList<QWidget *>widget_list;
+            widget_list << widget;
+            m_widgetList << widget_list;
+        } else {
+            m_widgetList[idx] << widget;
+        }
+        show();
+        return true;
+    }
+    return false;
+}
+
+bool BidirectScrollView::appendHere(QWidget *widget){
+    return append(m_verticalIndex, widget);
+}
+
+bool BidirectScrollView::append(int idx, QList<QWidget *>* widget_list){
+    if (0 <= idx && widget_list != nullptr){
+        if (idx > m_widgetList.count())return false;
+
+        if (idx == m_widgetList.count()){
+            return append(widget_list);
+        } else {
+            for (auto w : *widget_list) {
+                w->setFixedSize(size() - QSize(6, 6));
+                if (w->size() + QSize(6, 6) != size())return false;
+                w->setMinimumSize(QSize(0, 0));
+            }
+            m_widgetList[idx] << *widget_list;
+        }
+        show();
+        return true;
+    }
+    return false;
+}
+
+bool BidirectScrollView::appendHere(QList<QWidget *>* widget_list){
+return append(m_verticalIndex, widget_list);
+}
+
+bool BidirectScrollView::append(QList<QWidget *>* widget_list){
+    if (widget_list != nullptr){
+        for (auto w : *widget_list){
+            w->setFixedSize(size() - QSize(6, 6));
+            if (w->size() + QSize(6, 6) != size())return false;
+            w->setMinimumSize(QSize(0, 0));
+        }
+        m_widgetList << *widget_list;
+        show();
+        return true;
+    }
+    return false;
+}
+
 bool BidirectScrollView::append(QList<QList<QWidget *>>* widget_list){
     if (widget_list != nullptr){
         for (auto wl : *widget_list){
@@ -47,6 +116,25 @@ bool BidirectScrollView::append(QList<QList<QWidget *>>* widget_list){
         return true;
     }
     return false;
+}
+
+bool BidirectScrollView::remove(int v_idx, int h_idx){
+    if (0 <= v_idx && v_idx < m_widgetList.count() && 0 <= h_idx && h_idx < m_widgetList.at(v_idx).count()){
+        m_widgetList[v_idx].removeAt(h_idx);
+        if (m_verticalIndex == v_idx){
+            m_horizontalIndex = fmin(m_horizontalIndex, m_widgetList.at(v_idx).count() - 1);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool BidirectScrollView::removeCurrent(){
+    return remove(m_verticalIndex, m_horizontalIndex);
+}
+
+void BidirectScrollView::clear(){
+    m_widgetList.clear();
 }
 
 void BidirectScrollView::wheelEvent(QWheelEvent *event)

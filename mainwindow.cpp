@@ -23,19 +23,18 @@ MainWindow::MainWindow(QWidget *parent)
         *ui->scrollView2 << btn;
     }
     //ui->scrollView->setupAnimation(0.8, 300, ScrollView::SCROLL_HORIZONTAL);
-    QList<QList<QWidget *>> buttonList;
-    for (int i = 1; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         QList<QWidget *> bl;
-        for (int j = 0; j < i; j++){
+        for (int j = 0; j <= i; j++){
             QPushButton *btn = new QPushButton(ui->bidirectScrollView);
             btn->setText(QString::number(i) + QString::number(j));
             btn->setVisible(false);
             btn->setStyleSheet(".QPushButton {background-color: #F6F6F6 ;border-radius: 15px;}");
-            bl << btn;
+            //bl << btn;
+            ui->bidirectScrollView->append(i, btn);
         }
-        buttonList << bl;
+        //*ui->bidirectScrollView << bl;
     }
-    *ui->bidirectScrollView << buttonList;
 }
 
 MainWindow::~MainWindow()

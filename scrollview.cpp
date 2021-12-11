@@ -33,6 +33,25 @@ void ScrollView::setupAppearance(int borderWidth, int radius, QString borderColo
     setStyleSheet(styleSheet);
 }
 
+bool ScrollView::get(int idx, QWidget* widget){
+    if (0 <= idx && idx < m_widgetList.count()){
+        widget = m_widgetList.at(idx);
+        return true;
+    }
+    return false;
+}
+
+bool ScrollView::getCurrent(QWidget* widget){
+    return get(m_currentIndex, widget);
+}
+
+bool ScrollView::getAll(QList<QWidget*>* widget_list){
+    if (!m_widgetList.isEmpty()){
+        widget_list = &m_widgetList;
+    }
+    return false;
+}
+
 bool ScrollView::append(QWidget* widget){
     if (widget != nullptr){
         widget->setFixedSize(size() - QSize(6, 6));
@@ -58,6 +77,34 @@ bool ScrollView::append(QList<QWidget*>* widget_list){
         return true;
     }
     return false;
+}
+
+bool ScrollView::remove(int idx){
+    if (0 <= idx && idx < m_widgetList.count()){
+        m_widgetList.removeAt(idx);
+        m_currentIndex = fmin(m_currentIndex, m_widgetList.count() - 1);
+        return true;
+    }
+    return false;
+}
+
+bool ScrollView::remove(QWidget* widget){
+    if (widget != nullptr){
+        bool success = m_widgetList.removeAll(widget);
+        m_currentIndex = fmin(m_currentIndex, m_widgetList.count() - 1);
+        return success;
+    }
+    return false;
+}
+
+
+bool ScrollView::removeCurrent(){
+    return remove(m_currentIndex);
+}
+
+void ScrollView::clear(){
+    m_widgetList.clear();
+    m_currentIndex = 0;
 }
 
 void ScrollView::wheelEvent(QWheelEvent *event)
