@@ -9,15 +9,17 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    bidirectscrollview.cpp \
+    frame/cardframe.cpp \
     main.cpp \
     mainwindow.cpp \
-    scrollview.cpp
+    view/scrollview.cpp \
+    view/bidirectscrollview.cpp
 
 HEADERS += \
-    bidirectscrollview.h \
+    frame/cardframe.h \
     mainwindow.h \
-    scrollview.h
+    view/scrollview.h \
+    view/bidirectscrollview.h
 
 FORMS += \
     mainwindow.ui
@@ -26,3 +28,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res/example/example.qrc

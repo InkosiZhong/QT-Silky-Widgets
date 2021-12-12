@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>hot.svg</file>
+        <file>nintendo-switch.svg</file>
+        <file>playstation.svg</file>
+        <file>time.svg</file>
+        <file>version.svg</file>
+        <file>xbox.svg</file>
+    </qresource>
+</RCC>

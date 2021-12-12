@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
         btn->setStyleSheet(".QPushButton {background-color: #F6F6F6 ;border-radius: 15px;}");
         *ui->scrollView2 << btn;
     }
+    ui->scrollView2->remove(6);
     //ui->scrollView->setupAnimation(0.8, 300, ScrollView::SCROLL_HORIZONTAL);
     for (int i = 0; i < 8; i++) {
         QList<QWidget *> bl;
@@ -35,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         //*ui->bidirectScrollView << bl;
     }
+    ui->card->setup("PlayStation", ":/playstation.svg", "#0080FF");
 }
 
 MainWindow::~MainWindow()

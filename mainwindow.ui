@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>730</width>
+    <width>1036</width>
     <height>200</height>
    </rect>
   </property>
@@ -63,6 +63,22 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="CardFrame" name="card" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>300</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>100</height>
+       </size>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
@@ -70,13 +86,19 @@
   <customwidget>
    <class>ScrollView</class>
    <extends>QWidget</extends>
-   <header location="global">scrollview.h</header>
+   <header location="global">view/scrollview.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>BidirectScrollView</class>
    <extends>QWidget</extends>
-   <header location="global">bidirectscrollview.h</header>
+   <header location="global">view/bidirectscrollview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CardFrame</class>
+   <extends>QWidget</extends>
+   <header location="global">frame/cardframe.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
