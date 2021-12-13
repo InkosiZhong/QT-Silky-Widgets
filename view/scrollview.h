@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QWheelEvent>
 #include <cmath>
+#include "utils.h"
 
 class ScrollView : public QWidget
 {
@@ -18,7 +19,7 @@ public:
 public:
     enum ScrollType { SCROLL_HORIZONTAL, SCROLL_VERTICAL };
     void setupAnimation(float zoomRate = 0.8, int duration = 300, ScrollType type = SCROLL_VERTICAL);
-    void setupAppearance(int borderWidth = 3, int radius = 15, QString borderColor = "#999999", QString backgroundColor = "#AAAAAA");
+    void setupAppearance(int borderWidth = 3, int radius = 15, QColor borderColor = "#999999", QColor backgroundColor = "#AAAAAA");
     bool get(int idx, QWidget*);
     bool getCurrent(QWidget*);
     bool getAll(QList<QWidget*>*);

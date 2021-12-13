@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QPushButton>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,7 +37,11 @@ MainWindow::MainWindow(QWidget *parent)
         }
         //*ui->bidirectScrollView << bl;
     }
-    ui->card->setup("PlayStation", ":/playstation.svg", "#0080FF");
+    QMap<QString, QPair<QString, QString>> map;
+    map.insert("time", QPair<QString, QString>("2020", ":/time.svg"));
+    map.insert("version", QPair<QString, QString>("5", ":/version.svg"));
+    map.insert("hot", QPair<QString, QString>("2321", ":/hot.svg"));
+    ui->card->setup("PlayStation", ":/playstation.svg", "#0080FF", &map, QSize(150, 40));
 }
 
 MainWindow::~MainWindow()

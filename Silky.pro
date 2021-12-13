@@ -12,12 +12,14 @@ SOURCES += \
     frame/cardframe.cpp \
     main.cpp \
     mainwindow.cpp \
+    utils.cpp \
     view/scrollview.cpp \
     view/bidirectscrollview.cpp
 
 HEADERS += \
     frame/cardframe.h \
     mainwindow.h \
+    utils.h \
     view/scrollview.h \
     view/bidirectscrollview.h
 

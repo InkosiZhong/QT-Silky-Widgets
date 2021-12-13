@@ -9,6 +9,7 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <cmath>
+#include "utils.h"
 
 class BidirectScrollView : public QWidget
 {
@@ -18,7 +19,7 @@ public:
 
 public:
     void setupAnimation(float zoomRate = 0.8, int duration = 300);
-    void setupAppearance(int borderWidth = 3, int radius = 15, QString borderColor = "#999999", QString backgroundColor = "#AAAAAA");
+    void setupAppearance(int borderWidth = 3, int radius = 15, QColor borderColor = "#999999", QColor backgroundColor = "#AAAAAA");
     bool get(int v_idx, int h_idx, QWidget *);
     bool append(int idx, QWidget *);
     bool appendHere(QWidget *);

@@ -23,12 +23,13 @@ void BidirectScrollView::setupAnimation(float zoomRate, int duration){
     }
 }
 
-void BidirectScrollView::setupAppearance(int borderWidth, int radius, QString borderColor, QString backgroundColor){
+void BidirectScrollView::setupAppearance(int borderWidth, int radius, QColor borderColor, QColor backgroundColor){
     borderWidth = fmax(fmin(borderWidth, 3), 0);
     radius = fmax(radius, 0);
+    QString tmp;
     QString styleSheet = ".QWidget {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
-                         ".QWidget:hover {border: " + QString::number(borderWidth) + "px solid " + borderColor + "; " +
-                                   "background-color: " + backgroundColor + "; " +
+                         ".QWidget:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
+                                   "background-color: " + utils::color2QString(backgroundColor, tmp) + "; " +
                                    "border-radius: " + QString::number(radius) + "px;}";
     setStyleSheet(styleSheet);
 }
