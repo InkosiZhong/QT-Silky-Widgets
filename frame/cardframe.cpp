@@ -1,19 +1,13 @@
 #include "cardframe.h"
-#include <QTreeWidgetItem>
-#include <QtSvg/QSvgRenderer>
-#include <QPainter>
-#include <QHBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QDebug>
 
 CardFrame::CardFrame(QWidget *parent) {
-    QString styleSheet = ".QWidget {background-color: #ffffff; border-radius: 15px;} .QWidget:hover {background-color: #eeeeee; border-radius: 15px;}";
+    QString styleSheet = ".QFrame {background-color: #ffffff; border-radius: 15px;} .QFrame:hover {background-color: #eeeeee;}";
     setStyleSheet(styleSheet);
     QHBoxLayout* mainLayout = new QHBoxLayout();
     QVBoxLayout* vctLayout = new QVBoxLayout();
     m_attrWidget = new QWidget();
     QHBoxLayout* attrLayout = new QHBoxLayout();
+    attrLayout->setMargin(0);
     QLabel* label = new QLabel();
     QSpacerItem* spacer = new QSpacerItem(25, 0, QSizePolicy::Maximum);
     mainLayout->addSpacerItem(spacer);
@@ -34,20 +28,19 @@ CardFrame::CardFrame(QWidget *parent) {
     mainLayout->addLayout(vctLayout);
     setLayout(mainLayout);
     initAnimation();
-    m_size = size();
-    connect(this, SIGNAL(signalChangeExhibitState(const ExhibitState&, const QPoint&)), this, SLOT(onChangeExhibitState(const ExhibitState&, const QPoint&)));
 }
 
-void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes, QSize minSize){
+void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes, QSize size, QSize minSize){
     m_type = QPair<QString, QString>(type, icon);
     m_color = color;
     m_attributes.clear();
-    m_minSize = minSize == QSize(0, 0) ? size() : minSize;
+    m_size = size;
+    m_minSize = minSize == QSize(0, 0) ? this->size() : minSize;
     if (attributes != nullptr){
         m_attributes = *attributes;
     }
     QString hex_color, hover_color;
-    QString styleSheet = ".QWidget {background-color: " + utils::color2QString(m_color, hex_color) + "; border-radius: 15px;} .QWidget:hover {background-color: " + utils::color2QString(m_color.darker(120), hover_color) + ";}";
+    QString styleSheet = ".QFrame {background-color: " + utils::color2QString(m_color, hex_color) + "; border-radius: 15px;} .QFrame:hover {background-color: " + utils::color2QString(m_color.darker(120), hover_color) + ";}";
     setStyleSheet(styleSheet);
     QLabel* label = qobject_cast<QLabel *>(layout()->itemAt(1)->widget());
     label->setStyleSheet("image:url(" + icon + ")");
@@ -55,7 +48,7 @@ void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QP
     label->setText(type);
     label->setStyleSheet("color: #F9F9F9;");
     if (!m_attributes.isEmpty()){
-        QString styleSheet = ".QWidget {background-color: transparent;}";
+        QString styleSheet = ".QWidget {background-color: transparent; border: 0px}";
         m_attrWidget->setStyleSheet(styleSheet);
         QHBoxLayout* attrLayout = qobject_cast<QHBoxLayout *>(m_attrWidget->layout());
         QLayoutItem *child;
@@ -77,7 +70,7 @@ void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QP
 }
 
 
-void CardFrame::onChangeExhibitState(const ExhibitState state, const QPoint& p_ref){
+void CardFrame::switchExhibitState(const ExhibitState state, const QPoint& p_ref){
     if (state != m_state){
         if (state == EX_SMALL){
             QPropertyAnimation* a = static_cast<QPropertyAnimation *>(m_shrinkAnimation->animationAt(0));
@@ -103,10 +96,11 @@ void CardFrame::onChangeExhibitState(const ExhibitState state, const QPoint& p_r
 }
 
 void CardFrame::mousePressEvent(QMouseEvent* event){
+    //this->setParent(parentWidget()->parentWidget());
     if (event->buttons() & Qt::LeftButton){
         m_selected = true;
         QPoint p_ref = QPoint(event->pos().x() + pos().x() - m_minSize.width() / 2, event->pos().y() + pos().y() - m_minSize.height() / 2);
-        emit signalChangeExhibitState(EX_SMALL, p_ref);
+        switchExhibitState(EX_SMALL, p_ref);
     }
 }
 
@@ -120,13 +114,10 @@ void CardFrame::mouseMoveEvent(QMouseEvent* event){
 void CardFrame::mouseReleaseEvent(QMouseEvent* event){
     if (m_selected){
         QPoint p_ref = QPoint(event->pos().x() + pos().x() - m_size.width() / 2, event->pos().y() + pos().y() - m_size.height() / 2);
-        emit signalChangeExhibitState(EX_LARGE, p_ref);
+        //QPoint p_ref = QPoint(3, 3);
+        switchExhibitState(EX_LARGE, p_ref);
         m_selected = false;
     }
-}
-
-void CardFrame::mouseDoubleClickEvent(QMouseEvent* event){
-
 }
 
 void CardFrame::initAnimation(){

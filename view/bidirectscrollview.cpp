@@ -29,8 +29,7 @@ void BidirectScrollView::setupAppearance(int borderWidth, int radius, QColor bor
     QString tmp;
     QString styleSheet = ".QWidget {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
                          ".QWidget:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
-                                   "background-color: " + utils::color2QString(backgroundColor, tmp) + "; " +
-                                   "border-radius: " + QString::number(radius) + "px;}";
+                                   "background-color: " + utils::color2QString(backgroundColor, tmp) + ";}";
     setStyleSheet(styleSheet);
 }
 
@@ -45,6 +44,8 @@ bool BidirectScrollView::get(int v_idx, int h_idx, QWidget *widget){
 bool BidirectScrollView::append(int idx, QWidget *widget){
     if (0 <= idx && widget != nullptr){
         if (idx > m_widgetList.count())return false;
+        widget->setVisible(false);
+        widget->setParent(this);
         widget->setFixedSize(size() - QSize(6, 6));
         if (widget->size() + QSize(6, 6) != size())return false;
         widget->setMinimumSize(QSize(0, 0));
@@ -55,7 +56,7 @@ bool BidirectScrollView::append(int idx, QWidget *widget){
         } else {
             m_widgetList[idx] << widget;
         }
-        show();
+        exhibit();
         return true;
     }
     return false;
@@ -68,18 +69,19 @@ bool BidirectScrollView::appendHere(QWidget *widget){
 bool BidirectScrollView::append(int idx, QList<QWidget *>* widget_list){
     if (0 <= idx && widget_list != nullptr){
         if (idx > m_widgetList.count())return false;
-
         if (idx == m_widgetList.count()){
             return append(widget_list);
         } else {
             for (auto w : *widget_list) {
+                w->setVisible(false);
+                w->setParent(this);
                 w->setFixedSize(size() - QSize(6, 6));
                 if (w->size() + QSize(6, 6) != size())return false;
                 w->setMinimumSize(QSize(0, 0));
             }
             m_widgetList[idx] << *widget_list;
         }
-        show();
+        exhibit();
         return true;
     }
     return false;
@@ -92,12 +94,14 @@ return append(m_verticalIndex, widget_list);
 bool BidirectScrollView::append(QList<QWidget *>* widget_list){
     if (widget_list != nullptr){
         for (auto w : *widget_list){
+            w->setVisible(false);
+            w->setParent(this);
             w->setFixedSize(size() - QSize(6, 6));
             if (w->size() + QSize(6, 6) != size())return false;
             w->setMinimumSize(QSize(0, 0));
         }
         m_widgetList << *widget_list;
-        show();
+        exhibit();
         return true;
     }
     return false;
@@ -107,13 +111,15 @@ bool BidirectScrollView::append(QList<QList<QWidget *>>* widget_list){
     if (widget_list != nullptr){
         for (auto wl : *widget_list){
             for (auto w : wl){
+                w->setVisible(false);
+                w->setParent(this);
                 w->setFixedSize(size() - QSize(6, 6));
                 if (w->size() + QSize(6, 6) != size())return false;
                 w->setMinimumSize(QSize(0, 0));
             }
         }
         m_widgetList << *widget_list;
-        show();
+        exhibit();
         return true;
     }
     return false;
@@ -190,7 +196,7 @@ QWidget *BidirectScrollView::getWidget(BidirectScrollView::PosType pos_type, Scr
     }
 }
 
-void BidirectScrollView::show()
+void BidirectScrollView::exhibit()
 {
     auto w = getWidget(static_cast<PosType>(POS_SHOW), SCROLL_VERTICAL);
     w->move(getPos(static_cast<PosType>(POS_SHOW), SCROLL_VERTICAL));

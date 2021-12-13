@@ -9,31 +9,29 @@
 #include <QParallelAnimationGroup>
 #include <QSequentialAnimationGroup>
 #include <QPropertyAnimation>
+#include <QHBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QDebug>
 #include "utils.h"
 
-class CardFrame : public QWidget
+class CardFrame : public QFrame
 {
-    Q_OBJECT
 public:
     CardFrame(QWidget *parent = nullptr);
 
 public:
-    void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr, QSize minSize = QSize(0, 0));
+    void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr, QSize size = QSize(300, 100), QSize minSize = QSize(0, 0));
 
 protected:
     enum ExhibitState{EX_LARGE, EX_SMALL};
-signals:
-    void signalChangeExhibitState(const ExhibitState state, const QPoint& p_end);
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
-    void mouseDoubleClickEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void initAnimation();
-
-private slots:
-    void onChangeExhibitState(const ExhibitState state, const QPoint& p_ref);
+    void switchExhibitState(const ExhibitState state, const QPoint& p_ref);
 
 private:
     QWidget* m_attrWidget;

@@ -29,8 +29,7 @@ void ScrollView::setupAppearance(int borderWidth, int radius, QColor borderColor
     QString tmp;
     QString styleSheet = ".QWidget {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
                          ".QWidget:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
-                                   "background-color: " + utils::color2QString(backgroundColor, tmp) + "; " +
-                                   "border-radius: " + QString::number(radius) + "px;}";
+                                   "background-color: " + utils::color2QString(backgroundColor, tmp) + ";}";
     setStyleSheet(styleSheet);
 }
 
@@ -54,12 +53,14 @@ bool ScrollView::getAll(QList<QWidget*>* widget_list){
 }
 
 bool ScrollView::append(QWidget* widget){
+    widget->setParent(this);
+    widget->setVisible(false);
     if (widget != nullptr){
         widget->setFixedSize(size() - QSize(6, 6));
         if (widget->size() + QSize(6, 6) == size()){
             widget->setMinimumSize(QSize(0, 0));
             m_widgetList << widget;
-            show();
+            if (m_widgetList.count() == 1)exhibit();
             return true;
         }
     }
@@ -69,12 +70,14 @@ bool ScrollView::append(QWidget* widget){
 bool ScrollView::append(QList<QWidget*>* widget_list){
     if (widget_list != nullptr){
         for (auto w : *widget_list){
+            w->setParent(this);
+            w->setVisible(false);
             w->setFixedSize(size() - QSize(6, 6));
             if (w->size() + QSize(6, 6) != size())return false;
             w->setMinimumSize(QSize(0, 0));
         }
         m_widgetList << *widget_list;
-        show();
+        if (m_widgetList.count() == 1)exhibit();
         return true;
     }
     return false;
@@ -136,7 +139,7 @@ QWidget *ScrollView::getWidget(ScrollView::PosType type)
     return m_widgetList.at(index);
 }
 
-void ScrollView::show()
+void ScrollView::exhibit()
 {
     auto w = getWidget(static_cast<PosType>(POS_SHOW));
     w->move(getPos(static_cast<PosType>(POS_SHOW)));

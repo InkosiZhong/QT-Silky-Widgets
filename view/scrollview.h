@@ -39,10 +39,10 @@ protected:
     enum PosType { POS_PREV = -1, POS_SHOW, POS_NEXT };
     QPoint getPos(PosType type);
     QWidget* getWidget(PosType type);
+    void exhibit();
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
-    void show();
     void initAnimation();
     void scrollPre();
     void scrollNext();

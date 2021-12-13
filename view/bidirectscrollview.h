@@ -46,7 +46,7 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
-    void show();
+    void exhibit();
     void initAnimation();
     void scrollPre(ScrollType type);
     void scrollNext(ScrollType type);
