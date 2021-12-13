@@ -37,9 +37,9 @@ public:
 
 protected:
     enum PosType { POS_PREV = -1, POS_SHOW, POS_NEXT };
-    QPoint getPos(PosType type);
-    QWidget* getWidget(PosType type);
     enum ScrollType { SCROLL_HORIZONTAL, SCROLL_VERTICAL };
+    QPoint getPos(PosType pos_type, ScrollType scroll_type);
+    QWidget* getWidget(PosType pos_type, ScrollType scroll_type);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -47,15 +47,15 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
     void show();
     void initAnimation();
-    void scrollPre();
-    void scrollNext();
+    void scrollPre(ScrollType type);
+    void scrollNext(ScrollType type);
 
 private:
     QList<QList<QWidget *>> m_widgetList;
     int m_verticalIndex = 0, m_horizontalIndex = 0;
     QAnimationGroup *m_animationGroup;
     float m_zoomRate = 0.8;
-    ScrollType m_scrollType = SCROLL_VERTICAL;
+    bool m_shiftDown = false;
 };
 
 #endif // BIDIRECTSCROLLVIEW_H

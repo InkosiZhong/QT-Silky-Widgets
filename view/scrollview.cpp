@@ -6,6 +6,7 @@ ScrollView::ScrollView(QWidget *parent){
     setFixedSize(size());
     setupAnimation();
     setupAppearance();
+    setAttribute(Qt::WA_AcceptTouchEvents, true);
 }
 
 ScrollView::~ScrollView() {}
@@ -113,9 +114,9 @@ void ScrollView::wheelEvent(QWheelEvent *event)
         return;
     }
 
-    if (event->angleDelta().y() < 0) {
+    if (event->angleDelta().y() <= -100 || (m_scrollType ==SCROLL_HORIZONTAL && event->angleDelta().x() <= -100)) {
         scrollNext();
-    } else {
+    } else if (event->angleDelta().y() >= 100 || (m_scrollType ==SCROLL_HORIZONTAL && event->angleDelta().x() >= 100)) {
         scrollPre();
     }
 }
@@ -133,7 +134,6 @@ QWidget *ScrollView::getWidget(ScrollView::PosType type)
 {
     int index = (m_currentIndex + m_widgetList.count() + type) % m_widgetList.count();
     return m_widgetList.at(index);
-
 }
 
 void ScrollView::show()
