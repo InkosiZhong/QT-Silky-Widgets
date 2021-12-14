@@ -2,6 +2,8 @@
 
 ScrollView::ScrollView(QWidget *parent){
     m_animationGroup = new QParallelAnimationGroup(this);
+    setAttribute(Qt::WA_StyledBackground, true);
+    setAcceptDrops(true);
     initAnimation();
     setFixedSize(size());
     setupAnimation();
@@ -27,8 +29,8 @@ void ScrollView::setupAppearance(int borderWidth, int radius, QColor borderColor
     borderWidth = fmax(fmin(borderWidth, 3), 0);
     radius = fmax(radius, 0);
     QString tmp;
-    QString styleSheet = ".QWidget {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
-                         ".QWidget:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
+    QString styleSheet = ".ScrollView {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
+                         ".ScrollView:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
                                    "background-color: " + utils::color2QString(backgroundColor, tmp) + ";}";
     setStyleSheet(styleSheet);
 }
@@ -111,8 +113,7 @@ void ScrollView::clear(){
     m_currentIndex = 0;
 }
 
-void ScrollView::wheelEvent(QWheelEvent *event)
-{
+void ScrollView::wheelEvent(QWheelEvent *event){
     if (m_animationGroup->state() == QAnimationGroup::Running) {
         return;
     }
@@ -224,4 +225,13 @@ void ScrollView::scrollNext()
 
     m_animationGroup->start();
     m_currentIndex = (m_currentIndex + 1) % m_widgetList.count();
+}
+
+#include <QDebug>
+void ScrollView::onCaptureWidget(const QPoint& center_point, QWidget* widget){
+    QRect rect = QRect(pos(), size());
+    if (rect.contains(center_point)){
+        qDebug() << widget;
+        this->append(widget);
+    }
 }

@@ -13,6 +13,7 @@
 
 class BidirectScrollView : public QWidget
 {
+    Q_OBJECT
 public:
     BidirectScrollView(QWidget *parent = nullptr);
     ~BidirectScrollView();

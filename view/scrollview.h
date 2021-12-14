@@ -12,6 +12,7 @@
 
 class ScrollView : public QWidget
 {
+    Q_OBJECT
 public:
     ScrollView(QWidget *parent = nullptr);
     ~ScrollView();
@@ -34,6 +35,9 @@ public:
     QWidget & operator<<(QWidget *w){ append(w); return *this; }
     QWidget & operator<<(QList<QWidget*> &wl){ append(&wl); return *this; }
     QWidget & operator<<(QList<QWidget*> *wl){ append(wl); return *this; }
+
+public slots:
+    void onCaptureWidget(const QPoint& center_point, QWidget* widget);
 
 protected:
     enum PosType { POS_PREV = -1, POS_SHOW, POS_NEXT };

@@ -1,7 +1,8 @@
 #include "cardframe.h"
 
 CardFrame::CardFrame(QWidget *parent) {
-    QString styleSheet = ".QFrame {background-color: #ffffff; border-radius: 15px;} .QFrame:hover {background-color: #eeeeee;}";
+    setAttribute(Qt::WA_StyledBackground, true);
+    QString styleSheet = ".CardFrame {background-color: #ffffff; border-radius: 15px;} .QFrame:hover {background-color: #eeeeee;}";
     setStyleSheet(styleSheet);
     QHBoxLayout* mainLayout = new QHBoxLayout();
     QVBoxLayout* vctLayout = new QVBoxLayout();
@@ -40,7 +41,7 @@ void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QP
         m_attributes = *attributes;
     }
     QString hex_color, hover_color;
-    QString styleSheet = ".QFrame {background-color: " + utils::color2QString(m_color, hex_color) + "; border-radius: 15px;} .QFrame:hover {background-color: " + utils::color2QString(m_color.darker(120), hover_color) + ";}";
+    QString styleSheet = ".CardFrame {background-color: " + utils::color2QString(m_color, hex_color) + "; border-radius: 15px;}"; // .CardFrame:hover {background-color: " + utils::color2QString(m_color.darker(120), hover_color) + ";}";
     setStyleSheet(styleSheet);
     QLabel* label = qobject_cast<QLabel *>(layout()->itemAt(1)->widget());
     label->setStyleSheet("image:url(" + icon + ")");
@@ -116,6 +117,7 @@ void CardFrame::mouseReleaseEvent(QMouseEvent* event){
         QPoint p_ref = QPoint(event->pos().x() + pos().x() - m_size.width() / 2, event->pos().y() + pos().y() - m_size.height() / 2);
         //QPoint p_ref = QPoint(3, 3);
         switchExhibitState(EX_LARGE, p_ref);
+        emit signalDrop(event->pos() + pos(), this);
         m_selected = false;
     }
 }

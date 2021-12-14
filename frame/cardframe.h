@@ -17,11 +17,15 @@
 
 class CardFrame : public QFrame
 {
+    Q_OBJECT
 public:
     CardFrame(QWidget *parent = nullptr);
 
 public:
     void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr, QSize size = QSize(300, 100), QSize minSize = QSize(0, 0));
+
+signals:
+    void signalDrop(const QPoint& center_point, QWidget* frame);
 
 protected:
     enum ExhibitState{EX_LARGE, EX_SMALL};

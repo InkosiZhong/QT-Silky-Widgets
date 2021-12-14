@@ -2,6 +2,7 @@
 
 BidirectScrollView::BidirectScrollView(QWidget *parent){
     m_animationGroup = new QParallelAnimationGroup(this);
+    setAttribute(Qt::WA_StyledBackground, true);
     initAnimation();
     setFixedSize(size());
     setupAnimation();
@@ -27,8 +28,8 @@ void BidirectScrollView::setupAppearance(int borderWidth, int radius, QColor bor
     borderWidth = fmax(fmin(borderWidth, 3), 0);
     radius = fmax(radius, 0);
     QString tmp;
-    QString styleSheet = ".QWidget {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
-                         ".QWidget:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
+    QString styleSheet = ".BidirectScrollView {border: 3px solid transparent; background-color: transparent; border-radius: " + QString::number(radius) + "px;}" +
+                         ".BidirectScrollView:hover {border: " + QString::number(borderWidth) + "px solid " + utils::color2QString(borderColor, tmp) + "; " +
                                    "background-color: " + utils::color2QString(backgroundColor, tmp) + ";}";
     setStyleSheet(styleSheet);
 }

@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scrollView2->setParent(this);
     ui->bidirectScrollView->setParent(this);
     ui->card->setParent(this);
+    connect(ui->card, SIGNAL(signalDrop(const QPoint&, QWidget*)), ui->scrollView2, SLOT(onCaptureWidget(const QPoint&, QWidget*)));
     for (int i = 0; i < 8; i++) {
         QPushButton *btn = new QPushButton(ui->scrollView2);
         btn->setText(QString::number(i));
