@@ -109,11 +109,20 @@ void CardFrame::switchExhibitState(const ExhibitState state, const QPoint& p_ctr
     m_state = state;
 }
 
+#include <QDebug>
 void CardFrame::mousePressEvent(QMouseEvent* event){
-    //this->setParent(parentWidget()->parentWidget());
     if (event->buttons() & Qt::LeftButton){
         m_selected = true;
         switchExhibitState(EX_SMALL, event->pos() + pos(), event->pos() + pos());
+        if (parentWidget() != m_restrictWidget){
+            QPoint p = parentWidget()->pos() + pos();
+            qDebug() << parentWidget()->pos() << pos();
+            setParent(m_restrictWidget);
+            hide();
+            move(p);
+            show();
+            qDebug() << pos();
+        }
     }
 }
 

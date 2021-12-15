@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
         map.insert("version", QPair<QString, QString>("5", ":/version.svg"));
         map.insert("hot", QPair<QString, QString>("2321", ":/hot.svg"));
         c->setup("PlayStation", ":/playstation.svg", "#0080FF", &map, QSize(300, 100), QSize(150, 40));
+        c->setRestrict(this);
         *ui->scrollView += c;
     }
     ui->scrollView2->remove(6);
