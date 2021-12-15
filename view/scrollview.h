@@ -20,7 +20,7 @@ public:
 public:
     enum ScrollType { SCROLL_HORIZONTAL, SCROLL_VERTICAL };
     void setupAnimation(float zoomRate = 0.8, int duration = 300, ScrollType type = SCROLL_VERTICAL);
-    void setupAppearance(int borderWidth = 3, int radius = 15, QColor borderColor = "#999999", QColor backgroundColor = "#AAAAAA");
+    void setupAppearance(int borderWidth = 2, int radius = 17, QColor borderColor = "#999999", QColor backgroundColor = "#AAAAAA");
     bool get(int idx, QWidget*);
     bool getCurrent(QWidget*);
     bool getAll(QList<QWidget*>*);
@@ -30,13 +30,24 @@ public:
     bool remove(QWidget*);
     bool removeCurrent();
     void clear();
+    void bind(QWidget*);
+    void bind(QList<QWidget*>*);
 
-    QWidget & operator<<(QWidget &w){ append(&w); return *this; }
-    QWidget & operator<<(QWidget *w){ append(w); return *this; }
-    QWidget & operator<<(QList<QWidget*> &wl){ append(&wl); return *this; }
-    QWidget & operator<<(QList<QWidget*> *wl){ append(wl); return *this; }
+    QWidget & operator<<(QWidget &w){ bind(&w); return *this; }
+    QWidget & operator<<(QWidget *w){ bind(w); return *this; }
+    QWidget & operator<<(QList<QWidget*> &wl){ bind(&wl); return *this; }
+    QWidget & operator<<(QList<QWidget*> *wl){ bind(wl); return *this; }
+
+    QWidget & operator+=(QWidget &w){ append(&w); return *this; }
+    QWidget & operator+=(QWidget *w){ append(w); return *this; }
+    QWidget & operator+=(QList<QWidget*> &wl){ append(&wl); return *this; }
+    QWidget & operator+=(QList<QWidget*> *wl){ append(wl); return *this; }
+
+signals:
+    void signalSwitchExhibitState(const ExhibitState state, const QPoint&, const QPoint&);
 
 public slots:
+    void onDragWidget(const QPoint& center_point);
     void onCaptureWidget(const QPoint& center_point, QWidget* widget);
 
 protected:
@@ -48,15 +59,19 @@ protected:
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void initAnimation();
-    void scrollPre();
+    void scrollPrev();
     void scrollNext();
+    void scrollIn();
+    void scrollOut();
 
 private:
     QList<QWidget *> m_widgetList;
     int m_currentIndex = 0;
+    int m_borderWidth = 3;
     QAnimationGroup *m_animationGroup;
     float m_zoomRate = 0.8;
     ScrollType m_scrollType = SCROLL_VERTICAL;
+    bool m_add_mode = false;
 };
 
 #endif // SCROLLVIEW_H

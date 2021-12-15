@@ -29,6 +29,7 @@ CardFrame::CardFrame(QWidget *parent) {
     mainLayout->addLayout(vctLayout);
     setLayout(mainLayout);
     initAnimation();
+    setRestrict();
 }
 
 void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes, QSize size, QSize minSize){
@@ -70,22 +71,34 @@ void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QP
     }
 }
 
+void CardFrame::setRestrict(QWidget *restrict){
+    if (restrict == nullptr){
+        m_restrictWidget = parentWidget();
+    } else {
+        m_restrictWidget = restrict;
+    }
+}
 
-void CardFrame::switchExhibitState(const ExhibitState state, const QPoint& p_ref){
+
+void CardFrame::switchExhibitState(const ExhibitState state, const QPoint& p_ctr_start, const QPoint& p_ctr_end){
     if (state != m_state){
         if (state == EX_SMALL){
+            QPoint p_start = QPoint(p_ctr_start.x() - m_size.width() / 2, p_ctr_start.y()- m_size.height() / 2);
+            QPoint p_end = QPoint(p_ctr_end.x() - m_minSize.width() / 2, p_ctr_end.y()- m_minSize.height() / 2);
             QPropertyAnimation* a = static_cast<QPropertyAnimation *>(m_shrinkAnimation->animationAt(0));
-            a->setStartValue(QRect(this->pos(), this->size()));
-            a->setEndValue(QRect(p_ref, m_minSize));
+            a->setStartValue(QRect(p_start, this->size()));
+            a->setEndValue(QRect(p_end, m_minSize));
             a->setTargetObject(this);
             if (!m_attributes.isEmpty()){
                 m_attrWidget->hide();
             }
             m_shrinkAnimation->start();
         } else {
+            QPoint p_start = QPoint(p_ctr_start.x() - m_minSize.width() / 2, p_ctr_start.y()- m_minSize.height() / 2);
+            QPoint p_end = QPoint(p_ctr_end.x() - m_size.width() / 2, p_ctr_end.y()- m_size.height() / 2);
             QPropertyAnimation* a = static_cast<QPropertyAnimation *>(m_enlargeAnimation->animationAt(0));
-            a->setStartValue(QRect(this->pos(), m_minSize));
-            a->setEndValue(QRect(p_ref, m_size));
+            a->setStartValue(QRect(p_start, m_minSize));
+            a->setEndValue(QRect(p_end, m_size));
             a->setTargetObject(this);
             if (!m_attributes.isEmpty()){
                 m_attrWidget->show();
@@ -100,8 +113,7 @@ void CardFrame::mousePressEvent(QMouseEvent* event){
     //this->setParent(parentWidget()->parentWidget());
     if (event->buttons() & Qt::LeftButton){
         m_selected = true;
-        QPoint p_ref = QPoint(event->pos().x() + pos().x() - m_minSize.width() / 2, event->pos().y() + pos().y() - m_minSize.height() / 2);
-        switchExhibitState(EX_SMALL, p_ref);
+        switchExhibitState(EX_SMALL, event->pos() + pos(), event->pos() + pos());
     }
 }
 
@@ -109,14 +121,13 @@ void CardFrame::mouseMoveEvent(QMouseEvent* event){
     if (m_selected){
         QPoint p_ref = QPoint(event->pos().x() + pos().x() - size().width() / 2, event->pos().y() + pos().y() - size().height() / 2);
         move(p_ref);
+        emit signalDrag(event->pos() + pos());
     }
 }
 
 void CardFrame::mouseReleaseEvent(QMouseEvent* event){
     if (m_selected){
         QPoint p_ref = QPoint(event->pos().x() + pos().x() - m_size.width() / 2, event->pos().y() + pos().y() - m_size.height() / 2);
-        //QPoint p_ref = QPoint(3, 3);
-        switchExhibitState(EX_LARGE, p_ref);
         emit signalDrop(event->pos() + pos(), this);
         m_selected = false;
     }

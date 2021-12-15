@@ -23,21 +23,23 @@ public:
 
 public:
     void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr, QSize size = QSize(300, 100), QSize minSize = QSize(0, 0));
+    void setRestrict(QWidget *restrict = nullptr);
 
 signals:
+    void signalDrag(const QPoint& center_point);
     void signalDrop(const QPoint& center_point, QWidget* frame);
-
-protected:
-    enum ExhibitState{EX_LARGE, EX_SMALL};
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void initAnimation();
-    void switchExhibitState(const ExhibitState state, const QPoint& p_ref);
+
+public slots:
+    void switchExhibitState(const ExhibitState state, const QPoint& p_ctr_start, const QPoint& p_ctr_end);
 
 private:
+    QWidget* m_restrictWidget;
     QWidget* m_attrWidget;
     QPair<QString, QString> m_type; // name-icon pair
     QColor m_color;

@@ -6,5 +6,6 @@
         <file>time.svg</file>
         <file>version.svg</file>
         <file>xbox.svg</file>
+        <file>add.svg</file>
     </qresource>
 </RCC>

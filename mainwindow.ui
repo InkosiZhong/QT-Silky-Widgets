@@ -79,6 +79,9 @@
       <height>100</height>
      </size>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
    </widget>
    <widget class="CardFrame" name="card" native="true">
     <property name="geometry">
