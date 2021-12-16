@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scrollView2->setParent(this);
     ui->bidirectScrollView->setParent(this);
     ui->card->setParent(this);
+    ui->card->setRestrict(this);
     *ui->scrollView << ui->card;
     *ui->scrollView2 << ui->card;
     for (int i = 0; i < 8; i++) {
