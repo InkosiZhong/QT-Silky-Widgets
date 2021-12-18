@@ -20,11 +20,13 @@ class CardFrame : public QFrame
     Q_OBJECT
 public:
     CardFrame(QWidget *parent = nullptr);
+    CardFrame(const CardFrame& src);
 
 public:
-    void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr, QSize size = QSize(300, 100), QSize minSize = QSize(0, 0));
+    void init();
+    void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr,
+               QSize size = QSize(300, 100), QSize minSize = QSize(0, 0), const ExhibitState state = EX_LARGE);
     void setRestrict(QWidget *restrict = nullptr);
-
 signals:
     void signalDrag(const QPoint& center_point);
     void signalDrop(const QPoint& center_point, QWidget* frame);

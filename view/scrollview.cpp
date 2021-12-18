@@ -183,11 +183,11 @@ void ScrollView::scrollPrev()
         QPoint p_start = getPos(static_cast<PosType>(POS_SHOW - i));
         QPoint p_end = getPos(static_cast<PosType>(POS_NEXT - i));
 
-        QRect r_start = QRect(p_start, w->maximumSize());
+        QRect r_start(p_start, w->maximumSize());
         QRect r_inter = m_scrollType == SCROLL_VERTICAL ?
                     QRect((p_start + p_end) / 2 + QPoint(w->width() * (1 - m_zoomRate) / 2, 0), w->maximumSize() * m_zoomRate) :
                     QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
-        QRect r_end = QRect(p_end, w->maximumSize());
+        QRect r_end(p_end, w->maximumSize());
 
         QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(i));
         QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
@@ -214,11 +214,11 @@ void ScrollView::scrollNext()
         QPoint p_start = getPos(static_cast<PosType>(POS_SHOW + i));
         QPoint p_end = getPos(static_cast<PosType>(POS_PREV + i));
 
-        QRect r_start = QRect(p_start, w->maximumSize());
+        QRect r_start(p_start, w->maximumSize());
         QRect r_inter = m_scrollType == SCROLL_VERTICAL ?
                     QRect((p_start + p_end) / 2 + QPoint(w->width() * (1 - m_zoomRate) / 2, 0), w->maximumSize() * m_zoomRate) :
                     QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
-        QRect r_end = QRect(p_end, w->maximumSize());
+        QRect r_end(p_end, w->maximumSize());
 
         QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(i));
         QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
@@ -243,11 +243,11 @@ void ScrollView::scrollIn(){
     QPoint p_start = getPos(static_cast<PosType>(POS_NEXT));
     QPoint p_end = getPos(static_cast<PosType>(POS_SHOW));
 
-    QRect r_start = QRect(p_start, w->maximumSize());
+    QRect r_start(p_start, w->maximumSize());
     QRect r_inter = m_scrollType == SCROLL_VERTICAL ?
                 QRect((p_start + p_end) / 2 + QPoint(w->width() * (1 - m_zoomRate) / 2, 0), w->maximumSize() * m_zoomRate) :
                 QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
-    QRect r_end = QRect(p_end, w->maximumSize());
+    QRect r_end(p_end, w->maximumSize());
 
     QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(1));
     QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
@@ -270,11 +270,11 @@ void ScrollView::scrollOut(){
     QPoint p_start = getPos(static_cast<PosType>(POS_SHOW));
     QPoint p_end = getPos(static_cast<PosType>(POS_NEXT));
 
-    QRect r_start = QRect(p_start, w->maximumSize());
+    QRect r_start(p_start, w->maximumSize());
     QRect r_inter = m_scrollType == SCROLL_VERTICAL ?
                 QRect((p_start + p_end) / 2 + QPoint(w->width() * (1 - m_zoomRate) / 2, 0), w->maximumSize() * m_zoomRate) :
                 QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
-    QRect r_end = QRect(p_end, w->maximumSize());
+    QRect r_end(p_end, w->maximumSize());
 
     QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(0));
     QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
@@ -289,7 +289,7 @@ void ScrollView::scrollOut(){
 }
 
 void ScrollView::onDragWidget(const QPoint& center_point){
-    QRect rect = QRect(pos(), size());
+    QRect rect(pos(), size());
     if (!m_add_mode && rect.contains(center_point)){
         this->scrollOut();
         m_add_mode = true;
@@ -300,7 +300,7 @@ void ScrollView::onDragWidget(const QPoint& center_point){
 }
 
 void ScrollView::onCaptureWidget(const QPoint& center_point, QWidget* widget){
-    QRect rect = QRect(pos(), size());
+    QRect rect(pos(), size());
     if (rect.contains(center_point)){
         append(widget);
         m_add_mode = false;
