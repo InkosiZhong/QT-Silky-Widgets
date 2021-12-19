@@ -6,9 +6,12 @@ CardFrame::CardFrame(QWidget *parent) {
 
 CardFrame::CardFrame(const CardFrame& src){
     init();
-    m_attributes = src.m_attributes;
-    setup(src.m_type.first, src.m_type.second, src.m_color, &m_attributes, m_size, m_minSize);
-    setParent(src.m_restrictWidget);
+    setup(src.m_type.first, src.m_type.second, src.m_color, &src.m_attributes, src.m_size, src.m_minSize);
+    setRestrict(src.m_restrictWidget);
+}
+
+void CardFrame::copy(QWidget* src, QWidget* widget){
+    if (widget == this)emit signalCopy(src, new CardFrame(*this));
 }
 
 void CardFrame::init(){
@@ -38,12 +41,15 @@ void CardFrame::init(){
     vctLayout->addWidget(m_attrWidget);
     vctLayout->addStretch(1);
     mainLayout->addLayout(vctLayout);
+    spacer = new QSpacerItem(25, 0, QSizePolicy::Maximum);
+    mainLayout->addSpacerItem(spacer);
     setLayout(mainLayout);
     initAnimation();
     setRestrict();
 }
 
-void CardFrame::setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes, QSize size, QSize minSize, const ExhibitState state){
+void CardFrame::setup(const QString type, const QString icon, const QColor color, const QMap<QString, QPair<QString, QString>>* attributes,
+                      const QSize size, const QSize minSize, const ExhibitState state){
     m_type = QPair<QString, QString>(type, icon);
     m_color = color;
     m_attributes.clear();
@@ -128,14 +134,12 @@ void CardFrame::mousePressEvent(QMouseEvent* event){
     if (event->buttons() & Qt::LeftButton){
         m_selected = true;
         if (parentWidget() != m_restrictWidget){
-            CardFrame* new_card = new CardFrame(*this);
-            new_card->show();
             QPoint p = parentWidget()->pos() + pos();
             setParent(m_restrictWidget);
             move(p);
             show();
         }
-        switchExhibitState(EX_SMALL, event->pos() + pos(), event->pos() + pos());
+        switchExhibitState(EX_SMALL, QPoint(m_size.width() / 2, m_size.height() / 2) + pos(), event->pos() + pos());
     }
 }
 
@@ -143,13 +147,12 @@ void CardFrame::mouseMoveEvent(QMouseEvent* event){
     if (m_selected){
         QPoint p_ref(event->pos().x() + pos().x() - size().width() / 2, event->pos().y() + pos().y() - size().height() / 2);
         move(p_ref);
-        emit signalDrag(event->pos() + pos());
+        emit signalDrag(event->pos() + pos(), this);
     }
 }
 
 void CardFrame::mouseReleaseEvent(QMouseEvent* event){
     if (m_selected){
-        QPoint p_ref(event->pos().x() + pos().x() - m_size.width() / 2, event->pos().y() + pos().y() - m_size.height() / 2);
         emit signalDrop(event->pos() + pos(), this);
         m_selected = false;
     }

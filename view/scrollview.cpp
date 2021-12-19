@@ -1,7 +1,7 @@
 #include "scrollview.h"
 
 ScrollView::ScrollView(QWidget *parent){
-    m_animationGroup = new QParallelAnimationGroup(this);
+    m_scrollGroup = new QParallelAnimationGroup(this);
     setAttribute(Qt::WA_StyledBackground, true);
     setAcceptDrops(true);
     initAnimation();
@@ -17,7 +17,7 @@ void ScrollView::setupAnimation(float zoomRate, int duration, ScrollType type){
     duration = fmax(duration, 0);
     m_scrollType = type;
     for (int i = 0; i < 2; i++) {
-        QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(i));
+        QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_scrollGroup->animationAt(i));
         QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
         a->setDuration(duration / 2);
         a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(1));
@@ -107,10 +107,12 @@ void ScrollView::clear(){
 }
 
 void ScrollView::bind(QWidget* widget){
-    connect(widget, SIGNAL(signalDrop(const QPoint&, QWidget*)), this, SLOT(onCaptureWidget(const QPoint&, QWidget*)));
-    connect(widget, SIGNAL(signalDrag(const QPoint&)), this, SLOT(onDragWidget(const QPoint&)));
+    connect(widget, SIGNAL(signalDrop(const QPoint&, QWidget*)), this, SLOT(onDropWidget(const QPoint&, QWidget*)));
+    connect(widget, SIGNAL(signalDrag(const QPoint&, QWidget*)), this, SLOT(onDragWidget(const QPoint&, QWidget*)));
+    connect(widget, SIGNAL(signalCopy(QWidget*, QWidget*)), this, SLOT(onCopyWidget(QWidget*, QWidget*)));
     connect(this, SIGNAL(signalSwitchExhibitState(const ExhibitState, const QPoint&, const QPoint&)),
             widget, SLOT(switchExhibitState(const ExhibitState, const QPoint&, const QPoint&)));
+    connect(this, SIGNAL(signalCopyWidget(QWidget*, QWidget*)), widget, SLOT(copy(QWidget*, QWidget*)));
 }
 
 void ScrollView::bind(QList<QWidget*>* widget_list){
@@ -121,8 +123,21 @@ void ScrollView::bind(QList<QWidget*>* widget_list){
     }
 }
 
+void ScrollView::sever(QWidget* widget){
+    disconnect(widget, 0, this, 0);
+    disconnect(this, 0, widget, 0);
+}
+
+void ScrollView::sever(QList<QWidget*>* widget_list){
+    if (widget_list != nullptr){
+        for (auto w : *widget_list){
+            sever(w);
+        }
+    }
+}
+
 void ScrollView::wheelEvent(QWheelEvent *event){
-    if (m_animationGroup->state() == QAnimationGroup::Running) {
+    if (m_scrollGroup->state() == QAnimationGroup::Running) {
         return;
     }
 
@@ -159,17 +174,17 @@ void ScrollView::initAnimation()
 {
     for (int i = 0; i < 2; i++) {
         QSequentialAnimationGroup* resizeGroup = new QSequentialAnimationGroup(this);
-        QPropertyAnimation* animation = new QPropertyAnimation(m_animationGroup);
+        QPropertyAnimation* animation = new QPropertyAnimation(m_scrollGroup);
         animation->setDuration(150);
         animation->setPropertyName("geometry");
         animation->setEasingCurve(QEasingCurve::InQuad);
         resizeGroup->addAnimation(animation);
-        animation = new QPropertyAnimation(m_animationGroup);
+        animation = new QPropertyAnimation(m_scrollGroup);
         animation->setDuration(150);
         animation->setPropertyName("geometry");
         resizeGroup->addAnimation(animation);
         animation->setEasingCurve(QEasingCurve::OutQuad);
-        m_animationGroup->addAnimation(resizeGroup);
+        m_scrollGroup->addAnimation(resizeGroup);
     }
 }
 
@@ -189,7 +204,7 @@ void ScrollView::scrollPrev()
                     QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
         QRect r_end(p_end, w->maximumSize());
 
-        QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(i));
+        QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_scrollGroup->animationAt(i));
         QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
         a->setStartValue(r_start);
         a->setEndValue(r_inter);
@@ -200,7 +215,7 @@ void ScrollView::scrollPrev()
         a->setTargetObject(w);
     }
 
-    m_animationGroup->start();
+    m_scrollGroup->start();
     m_currentIndex = (m_currentIndex + m_widgetList.count() - 1) % m_widgetList.count();
 }
 
@@ -220,7 +235,7 @@ void ScrollView::scrollNext()
                     QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
         QRect r_end(p_end, w->maximumSize());
 
-        QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(i));
+        QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_scrollGroup->animationAt(i));
         QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
         a->setStartValue(r_start);
         a->setEndValue(r_inter);
@@ -231,7 +246,7 @@ void ScrollView::scrollNext()
         a->setTargetObject(w);
     }
 
-    m_animationGroup->start();
+    m_scrollGroup->start();
     m_currentIndex = (m_currentIndex + 1) % m_widgetList.count();
 }
 
@@ -249,7 +264,7 @@ void ScrollView::scrollIn(){
                 QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
     QRect r_end(p_end, w->maximumSize());
 
-    QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(1));
+    QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_scrollGroup->animationAt(1));
     QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
     a->setStartValue(r_start);
     a->setEndValue(r_inter);
@@ -276,7 +291,7 @@ void ScrollView::scrollOut(){
                 QRect((p_start + p_end) / 2 + QPoint(0, w->height() * (1 - m_zoomRate) / 2), w->maximumSize() * m_zoomRate);
     QRect r_end(p_end, w->maximumSize());
 
-    QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_animationGroup->animationAt(0));
+    QSequentialAnimationGroup* resizeGroup = static_cast<QSequentialAnimationGroup *>(m_scrollGroup->animationAt(0));
     QPropertyAnimation* a = static_cast<QPropertyAnimation *>(resizeGroup->animationAt(0));
     a->setStartValue(r_start);
     a->setEndValue(r_inter);
@@ -288,24 +303,76 @@ void ScrollView::scrollOut(){
     resizeGroup->start();
 }
 
-void ScrollView::onDragWidget(const QPoint& center_point){
+void ScrollView::fadeIn(){
+    if (m_widgetList.count() < 1)return;
+    auto w = getWidget(static_cast<PosType>(POS_SHOW));
+    w->setVisible(true);
+
+    QAnimationGroup* fadeGroup = new QParallelAnimationGroup;
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(w);
+    effect->setOpacity(1.0);
+    w->setGraphicsEffect(effect);
+    QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity", this);
+    animation->setDuration(300);
+    animation->setStartValue(0);
+    animation->setEndValue(1.0);
+    animation->setEasingCurve(QEasingCurve::InOutQuad);
+    fadeGroup->addAnimation(animation);
+
+    animation = new QPropertyAnimation(m_scrollGroup);
+    animation->setDuration(300);
+    animation->setPropertyName("geometry");
+    animation->setEasingCurve(QEasingCurve::InOutQuad);
+    QSize minSize = w->maximumSize() * m_zoomRate;
+    QRect r_start(QPoint((width() - minSize.width()) / 2, (height() - minSize.height()) / 2), minSize);
+    QRect r_end(QPoint(m_borderWidth, m_borderWidth), w->maximumSize());
+    animation->setStartValue(r_start);
+    animation->setEndValue(r_end);
+    animation->setTargetObject(w);
+    fadeGroup->addAnimation(animation);
+
+    fadeGroup->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void ScrollView::onDragWidget(const QPoint& center_point, QWidget* widget){
+    if (m_widgetList.contains(widget))return;
     QRect rect(pos(), size());
     if (!m_add_mode && rect.contains(center_point)){
-        this->scrollOut();
+        scrollOut();
         m_add_mode = true;
     } else if (m_add_mode && !rect.contains(center_point)){
-        this->scrollIn();
+        scrollIn();
         m_add_mode = false;
     }
 }
 
-void ScrollView::onCaptureWidget(const QPoint& center_point, QWidget* widget){
+void ScrollView::onDropWidget(const QPoint& center_point, QWidget* widget){
     QRect rect(pos(), size());
     if (rect.contains(center_point)){
-        append(widget);
-        m_add_mode = false;
-        m_currentIndex = m_widgetList.count() - 1;
-        exhibit();
+        if (!m_widgetList.contains(widget)){
+            append(widget);
+            m_add_mode = false;
+            m_currentIndex = m_widgetList.count() - 1;
+            exhibit();
+        } else {
+            widget->setParent(this);
+            exhibit();
+        }
         emit signalSwitchExhibitState(EX_LARGE, center_point - pos(), QPoint(size().width() / 2 + m_borderWidth, size().height() / 2 + m_borderWidth));
+    } else if (m_widgetList.contains(widget)){
+        emit signalCopyWidget(this, widget);
+    }
+}
+
+void ScrollView::onCopyWidget(QWidget* src, QWidget* widget){
+    if (src == this && widget != nullptr){
+        sever(m_widgetList[m_currentIndex]);
+        bind(widget);
+        widget->setFixedSize(size() - QSize(m_borderWidth * 2, m_borderWidth * 2));
+        widget->setMinimumSize(QSize(0, 0));
+        m_widgetList[m_currentIndex] = widget;
+        m_widgetList[m_currentIndex]->setParent(this);
+        exhibit();
+        fadeIn();
     }
 }

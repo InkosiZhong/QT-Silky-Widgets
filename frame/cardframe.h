@@ -24,12 +24,15 @@ public:
 
 public:
     void init();
-    void setup(QString type, QString icon, QColor color, QMap<QString, QPair<QString, QString>>* attributes = nullptr,
-               QSize size = QSize(300, 100), QSize minSize = QSize(0, 0), const ExhibitState state = EX_LARGE);
+    void setup(const QString type, const QString icon, const QColor color, const QMap<QString, QPair<QString, QString>>* attributes = nullptr,
+               const QSize size = QSize(300, 100), const QSize minSize = QSize(0, 0), const ExhibitState state = EX_LARGE);
     void setRestrict(QWidget *restrict = nullptr);
+
 signals:
-    void signalDrag(const QPoint& center_point);
+    void signalDrag(const QPoint& center_point, QWidget* frame);
     void signalDrop(const QPoint& center_point, QWidget* frame);
+
+    void signalCopy(QWidget* src, QWidget* frame);
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
@@ -39,6 +42,7 @@ protected:
 
 public slots:
     void switchExhibitState(const ExhibitState state, const QPoint& p_ctr_start, const QPoint& p_ctr_end);
+    void copy(QWidget* src, QWidget* widget);
 
 private:
     QWidget* m_restrictWidget;
