@@ -42,7 +42,7 @@ protected:
 
 public slots:
     void switchExhibitState(const ExhibitState state, const QPoint& p_ctr_start, const QPoint& p_ctr_end);
-    void copy(QWidget* src, QWidget* widget);
+    void copy(QWidget* widget);
 
 private:
     QWidget* m_restrictWidget;

@@ -56,7 +56,7 @@ public:
 
 signals:
     void signalSwitchExhibitState(const ExhibitState state, const QPoint&, const QPoint&);
-    void signalCopyWidget(QWidget* src, QWidget* widget);
+    void signalCopyWidget(QWidget* widget);
 
 public slots:
     void onDragWidget(const QPoint& center_point, QWidget* widget);

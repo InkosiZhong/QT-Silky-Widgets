@@ -112,7 +112,7 @@ void ScrollView::bind(QWidget* widget){
     connect(widget, SIGNAL(signalCopy(QWidget*, QWidget*)), this, SLOT(onCopyWidget(QWidget*, QWidget*)));
     connect(this, SIGNAL(signalSwitchExhibitState(const ExhibitState, const QPoint&, const QPoint&)),
             widget, SLOT(switchExhibitState(const ExhibitState, const QPoint&, const QPoint&)));
-    connect(this, SIGNAL(signalCopyWidget(QWidget*, QWidget*)), widget, SLOT(copy(QWidget*, QWidget*)));
+    connect(this, SIGNAL(signalCopyWidget(QWidget*)), widget, SLOT(copy(QWidget*)));
 }
 
 void ScrollView::bind(QList<QWidget*>* widget_list){
@@ -360,7 +360,7 @@ void ScrollView::onDropWidget(const QPoint& center_point, QWidget* widget){
         }
         emit signalSwitchExhibitState(EX_LARGE, center_point - pos(), QPoint(size().width() / 2 + m_borderWidth, size().height() / 2 + m_borderWidth));
     } else if (m_widgetList.contains(widget)){
-        emit signalCopyWidget(this, widget);
+        emit signalCopyWidget(widget);
     }
 }
 

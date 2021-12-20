@@ -10,8 +10,8 @@ CardFrame::CardFrame(const CardFrame& src){
     setRestrict(src.m_restrictWidget);
 }
 
-void CardFrame::copy(QWidget* src, QWidget* widget){
-    if (widget == this)emit signalCopy(src, new CardFrame(*this));
+void CardFrame::copy(QWidget* widget){
+    if (widget == this)emit signalCopy((QWidget*)sender(), new CardFrame(*this));
 }
 
 void CardFrame::init(){
